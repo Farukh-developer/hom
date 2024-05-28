@@ -1,9 +1,10 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth import authenticate, login
 from django.views import View
+from .models import Student, Hobby
 from .forms import LoginForm, RegisterForm
 from django.contrib.auth.models import User
-
+from .forms import StudentForm
 
 class LoginView(View):
     def get(self, request):
@@ -66,3 +67,28 @@ def delete_data(request, id):
     data.delete()
 
     return redirect('data/')
+
+# def profile(request, id):
+#     student=Student.objects.get(id=id)
+#     hobby=student.hobby.all()
+#     return render(request, 'profile.html', context={"student", student})
+
+def profile(request, id):
+    student=Student.objects.get(id=id)
+    hobby=student.hobby.all()
+    return render(request, 'profile.html', context={"student":student})
+
+
+
+def update(request, id):
+    student = get_object_or_404(Student, id=id)
+
+    if request.method == 'POST':
+        form = StudentForm(request.POST, instance=student)
+        if form.is_valid():
+            form.save()
+            return redirect('profile', id=student.id)
+    else:
+        form = StudentForm(instance=student)
+
+    return render(request, 'update.html', context={'student': student, 'form': form})
